@@ -52,6 +52,23 @@ def load_assets():
 # Load assets on startup
 load_assets()
 
+@app.route('/', methods=['GET'])
+def index():
+    return jsonify({
+        'message': 'CardioAI backend is running',
+        'health_url': '/api/health'
+    })
+
+@app.route('/api/health', methods=['GET'])
+def health_check():
+    return jsonify({
+        'status': 'ok',
+        'models_loaded': sorted(models.keys()),
+        'preprocessor_loaded': preprocessor is not None,
+        'metrics_loaded': bool(metrics_data),
+        'stats_loaded': bool(stats_data)
+    })
+
 @app.route('/api/metrics', methods=['GET'])
 def get_metrics():
     # If not loaded, reload
@@ -306,4 +323,5 @@ def predict():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=True)
