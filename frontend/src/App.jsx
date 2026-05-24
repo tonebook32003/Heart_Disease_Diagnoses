@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import DiagnosisTab from './components/DiagnosisTab';
 import AnalysisTab from './components/AnalysisTab';
 import ExplorerTab from './components/ExplorerTab';
@@ -15,16 +15,47 @@ const TABS = [
 export default function App() {
   const [activeTab, setActiveTab] = useState('diagnosis');
   const [selectedModel, setSelectedModel] = useState('Random Forest');
+  const navRef = useRef(null);
+  const tabRefs = useRef({});
   const [theme, setTheme] = useState(() => {
     const savedTheme = localStorage.getItem('cardioai-theme');
     if (savedTheme) return savedTheme;
     return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
   });
 
+  const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0, opacity: 0 });
+
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     localStorage.setItem('cardioai-theme', theme);
   }, [theme]);
+
+  useEffect(() => {
+    const updateIndicator = () => {
+      const activeEl = tabRefs.current[activeTab];
+      if (activeEl) {
+        setIndicatorStyle({
+          left: activeEl.offsetLeft,
+          width: activeEl.offsetWidth,
+          opacity: 1
+        });
+      }
+    };
+
+    updateIndicator();
+    const frame = requestAnimationFrame(updateIndicator);
+    const activeEl = tabRefs.current[activeTab];
+    activeEl?.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+
+    const resizeObserver = new ResizeObserver(updateIndicator);
+    if (navRef.current) resizeObserver.observe(navRef.current);
+    window.addEventListener('resize', updateIndicator);
+    return () => {
+      cancelAnimationFrame(frame);
+      resizeObserver.disconnect();
+      window.removeEventListener('resize', updateIndicator);
+    };
+  }, [activeTab]);
 
   const toggleTheme = () => {
     setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
@@ -48,14 +79,21 @@ export default function App() {
           <span className="brand-text">CardioAI</span>
         </div>
 
-        <nav className="header-nav" aria-label="Điều hướng chính">
+        <nav ref={navRef} className="header-nav" aria-label="Điều hướng chính">
+          <div className="n av-indicator-liquid" style={indicatorStyle} />
           {TABS.map(tab => {
             const Icon = tab.icon;
             return (
               <button
                 key={tab.id}
+                ref={node => {
+                  tabRefs.current[tab.id] = node;
+                }}
+                type="button"
                 className={`nav-btn ${activeTab === tab.id ? 'nav-active' : ''}`}
                 onClick={() => setActiveTab(tab.id)}
+                aria-current={activeTab === tab.id ? 'page' : undefined}
+                aria-label={tab.label}
                 title={tab.label}
               >
                 <Icon size={18} />
