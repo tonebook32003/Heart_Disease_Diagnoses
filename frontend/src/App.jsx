@@ -18,7 +18,7 @@ export default function App() {
   const navRef = useRef(null);
   const tabRefs = useRef({});
   const [theme, setTheme] = useState(() => {
-    const savedTheme = localStorage.getItem('cardioai-theme');
+    const savedTheme = localStorage.getItem('SmartHeartDiagnosis-theme');
     if (savedTheme) return savedTheme;
     return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
   });
@@ -27,7 +27,7 @@ export default function App() {
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
-    localStorage.setItem('cardioai-theme', theme);
+    localStorage.setItem('SmartHeartDiagnosis-theme', theme);
   }, [theme]);
 
   useEffect(() => {
@@ -76,7 +76,7 @@ export default function App() {
       <header className="floating-header">
         <div className="header-brand">
           <HeartPulse className="brand-icon" />
-          <span className="brand-text">CardioAI</span>
+          <span className="brand-text">SmartHeartDiagnosis</span>
         </div>
 
         <nav ref={navRef} className="header-nav" aria-label="Điều hướng chính">

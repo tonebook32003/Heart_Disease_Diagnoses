@@ -55,7 +55,7 @@ load_assets()
 @app.route('/', methods=['GET'])
 def index():
     return jsonify({
-        'message': 'CardioAI backend is running',
+        'message': 'SmartHeartDiagnosis backend is running',
         'health_url': '/api/health'
     })
 

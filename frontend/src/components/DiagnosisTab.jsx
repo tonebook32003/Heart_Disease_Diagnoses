@@ -140,7 +140,8 @@ export default function DiagnosisTab({ selectedModel }) {
           </div>
           <div className="form-grid">
             <div className="form-group">
-              <label htmlFor="age">Tuổi (Age) <span className="unit">Năm</span></label>
+            {/* <span className="unit">Năm</span> */}
+              <label htmlFor="age">Tuổi (Age) </label>
               <input id="age" type="number" min="1" max="120" placeholder="Ví dụ: 55"
                 value={form.Age} onChange={(e) => handleChange('Age', e.target.value)} />
             </div>
