@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: SmartHeartDiagnosis-backend
+    name: smartheartdiagnosis-backend
     runtime: python
     rootDir: backend
     buildCommand: pip install -r requirements.txt
@@ -13,17 +13,17 @@ services:
       - key: OPENROUTER_BASE_URL
         value: https://openrouter.ai/api/v1
       - key: APP_PUBLIC_URL
-        value: https://your-frontend-url.onrender.com
+        value: https://smartheartdiagnosis-frontend.onrender.com
 
   - type: web
-    name: SmartHeartDiagnosis-frontend
+    name: smartheartdiagnosis-frontend
     runtime: static
     rootDir: frontend
     buildCommand: npm install && npm run build
-    staticPublishPath: frontend/dist
+    staticPublishPath: dist
     envVars:
       - key: VITE_API_BASE_URL
-        value: https://cardioai-backend.onrender.com/api
+        value: https://smartheartdiagnosis-backend.onrender.com/api
     routes:
       - type: rewrite
         source: /*
