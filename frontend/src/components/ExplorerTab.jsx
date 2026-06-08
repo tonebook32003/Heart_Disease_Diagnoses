@@ -1,6 +1,50 @@
 import React, { useEffect, useState } from "react";
 import { getDatasetStats } from "../utils/api";
-import { Database, Users, Heart, AlertCircle, RefreshCw } from "lucide-react";
+import {
+  Database,
+  Users,
+  Heart,
+  AlertCircle,
+  RefreshCw,
+  Activity,
+  BarChart3,
+  BrainCircuit,
+  GitBranch,
+  SlidersHorizontal,
+} from "lucide-react";
+
+const workflow = [
+  {
+    icon: Database,
+    title: "Dataset",
+    text: "Thu thập 918 hồ sơ với 11 đặc trưng và nhãn HeartDisease.",
+  },
+  {
+    icon: SlidersHorizontal,
+    title: "Preprocessing",
+    text: "Chuẩn hóa biến số và mã hóa biến phân loại trước khi huấn luyện.",
+  },
+  {
+    icon: GitBranch,
+    title: "Train/Test Split",
+    text: "Tách dữ liệu để đánh giá khách quan khả năng tổng quát hóa.",
+  },
+  {
+    icon: BrainCircuit,
+    title: "Train Models",
+    text: "Huấn luyện bốn thuật toán và lưu lại bằng Joblib.",
+  },
+  {
+    icon: BarChart3,
+    title: "Evaluate",
+    text: "Đánh giá bằng metrics, ROC Curve và Confusion Matrix.",
+  },
+  {
+    icon: Activity,
+    title: "Serve API",
+    text: "Flask backend nạp model và trả kết quả dự đoán cho React UI.",
+  },
+];
 
 export default function ExplorerTab() {
   const [stats, setStats] = useState(null);
@@ -259,7 +303,7 @@ export default function ExplorerTab() {
   };
 
   return (
-    <div className="tab-pane fade-in">
+    <div className="tab-pane explorer-tab fade-in">
       <div className="section-header">
         <Database className="icon-purple" />
         <h2>Khám Phá Chi Tiết Tập Dữ Liệu</h2>
@@ -268,7 +312,7 @@ export default function ExplorerTab() {
           liệu huấn luyện.
         </p>
       </div>
-      <div className="card">
+      <div className="card explorer-dataset-card">
         <h2 className="section-title">
           <Database className="icon-purple" /> Về Tập Dữ Liệu Huấn Luyện
         </h2>
@@ -290,8 +334,25 @@ export default function ExplorerTab() {
           </div>
         </div>
       </div>
+      <section className="about-section about-workflow-section explorer-workflow-section">
+        <div className="about-section-heading">
+          <h2>Quy trình học máy</h2>
+        </div>
+        <div className="about-workflow">
+          {workflow.map(({ icon: Icon, title, text }, index) => (
+            <article className="about-workflow-step" key={title}>
+              <span className="about-workflow-index">{index + 1}</span>
+              <span className="about-workflow-icon">
+                <Icon size={18} />
+              </span>
+              <h3>{title}</h3>
+              <p>{text}</p>
+            </article>
+          ))}
+        </div>
+      </section>
       {/* Summary Cards */}
-      <div className="stats-summary-grid">
+      <div className="stats-summary-grid explorer-summary-grid">
         <div className="stat-summary-card bg-glass">
           <Database size={24} className="icon-purple" />
           <div>
@@ -326,7 +387,7 @@ export default function ExplorerTab() {
       </div>
 
       {/* Charts Grid */}
-      <div className="grid-2-col margin-top-md">
+      <div className="grid-2-col explorer-chart-grid">
         {renderDonut(
           "Tỷ Lệ Bệnh Tim (HeartDisease)",
           stats.heart_disease_distribution,
@@ -342,7 +403,7 @@ export default function ExplorerTab() {
         )}
       </div>
 
-      <div className="grid-2-col margin-top-md">
+      <div className="grid-2-col explorer-chart-grid">
         {renderBarChart(
           "Tỷ Lệ Mắc Bệnh Tim Theo Giới Tính",
           stats.heart_disease_by_gender,
@@ -363,7 +424,7 @@ export default function ExplorerTab() {
         )}
       </div>
 
-      <div className="grid-2-col margin-top-md">
+      <div className="grid-2-col explorer-chart-grid">
         {renderBarChart(
           "Tỷ Lệ Mắc Bệnh Tim Theo Độ Dốc Đoạn ST",
           stats.heart_disease_by_st_slope,
@@ -406,7 +467,7 @@ export default function ExplorerTab() {
         </div>
       </div>
 
-      <div className="margin-top-md">
+      <div className="explorer-heatmap-section">
         {renderCorrelationMatrix(stats.correlation_matrix)}
       </div>
     </div>
