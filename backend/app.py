@@ -24,21 +24,44 @@ OPENROUTER_MODEL = os.environ.get('OPENROUTER_MODEL', 'openai/gpt-4o-mini')
 OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
 OPENAI_MODEL = os.environ.get('OPENAI_MODEL', 'gpt-4.1-mini')
 
-if OPENROUTER_API_KEY:
+def is_ascii(value):
+    if not value:
+        return True
+    try:
+        value.encode('ascii')
+        return True
+    except UnicodeEncodeError:
+        return False
+
+def is_configured_api_key(value):
+    if not value:
+        return False
+    normalized = value.strip().lower()
+    placeholder_values = {
+        'api_key_here',
+        'your_openrouter_api_key_here',
+        'your_openai_api_key_here',
+        'your_api_key_here'
+    }
+    return normalized not in placeholder_values
+
+if is_configured_api_key(OPENROUTER_API_KEY):
     chat_provider = 'openrouter'
     chat_model = OPENROUTER_MODEL
-    openai_client = OpenAI(
-        api_key=OPENROUTER_API_KEY,
-        base_url=OPENROUTER_BASE_URL,
-        default_headers={
-            'HTTP-Referer': os.environ.get('APP_PUBLIC_URL', 'http://localhost:5173'),
-            'X-OpenRouter-Title': 'SmartHeartDiagnosis'
-        }
-    )
-elif OPENAI_API_KEY:
+    if not is_ascii(OPENROUTER_API_KEY):
+        openai_client = None
+    else:
+        openai_client = OpenAI(
+            api_key=OPENROUTER_API_KEY.strip(),
+            base_url=OPENROUTER_BASE_URL
+        )
+elif is_configured_api_key(OPENAI_API_KEY):
     chat_provider = 'openai'
     chat_model = OPENAI_MODEL
-    openai_client = OpenAI(api_key=OPENAI_API_KEY)
+    if not is_ascii(OPENAI_API_KEY):
+        openai_client = None
+    else:
+        openai_client = OpenAI(api_key=OPENAI_API_KEY.strip())
 else:
     chat_provider = None
     chat_model = None
@@ -121,6 +144,14 @@ def get_stats():
 @app.route('/api/chat', methods=['POST'])
 def chat():
     if openai_client is None:
+        if chat_provider == 'openrouter' and not is_ascii(OPENROUTER_API_KEY):
+            return jsonify({
+                'error': 'OPENROUTER_API_KEY contains non-ASCII characters. Paste only the raw OpenRouter key, without Vietnamese notes or extra text.'
+            }), 500
+        if chat_provider == 'openai' and not is_ascii(OPENAI_API_KEY):
+            return jsonify({
+                'error': 'OPENAI_API_KEY contains non-ASCII characters. Paste only the raw OpenAI key, without Vietnamese notes or extra text.'
+            }), 500
         return jsonify({
             'error': 'Chat API key is not configured. Set OPENROUTER_API_KEY or OPENAI_API_KEY on the backend server.'
         }), 500
@@ -415,4 +446,3 @@ def predict():
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port, debug=True)
-

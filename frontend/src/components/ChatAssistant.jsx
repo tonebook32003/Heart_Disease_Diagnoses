@@ -72,6 +72,7 @@ export default function ChatAssistant() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const chatRef = useRef(null);
   const inputRef = useRef(null);
   const messagesRef = useRef(null);
 
@@ -80,6 +81,22 @@ export default function ChatAssistant() {
       messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
     }
   }, [messages, loading]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleOutsideClick = (event) => {
+      if (!chatRef.current?.contains(event.target)) {
+        closeChat();
+      }
+    };
+
+    document.addEventListener("pointerdown", handleOutsideClick);
+
+    return () => {
+      document.removeEventListener("pointerdown", handleOutsideClick);
+    };
+  }, [isOpen]);
 
   const sendMessage = async (content) => {
     const trimmed = content.trim();
@@ -117,6 +134,7 @@ export default function ChatAssistant() {
 
   return (
     <div
+      ref={chatRef}
       className={`chat-assistant ${isOpen ? "chat-assistant-open" : ""} ${
         isExpanded ? "chat-assistant-expanded" : ""
       }`}
